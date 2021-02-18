@@ -2,15 +2,22 @@
 
 ;implement PPM on a pio in assebler
 
-     set pindirs, 0
 entry:
-     in pins 1
-     push
-     irq 0
-     irq 1
-     irq 2
-     irq 3
-     jmp entry
+	out y 32
+
+idle:
+	jmp pin idle
+
+counter:
+	jmp pin output
+	jmp y-- counter
+
+output:
+	in y 32
+	push
+	irq wait 0
+	jmp entry
+
 	
 
 % c-sdk {
