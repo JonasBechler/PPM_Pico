@@ -21,6 +21,7 @@ int8_t valuesIndex = 0;
 
 void interruptValuesRX()
 {
+    available = true;
     valuesIndex++;
     irq_clear(PIO0_IRQ_0);
 }
@@ -44,6 +45,7 @@ void core1_main()
         if (available)
         {
             printf("ISR %i \n", valuesIndex);
+            available = false;
         }
         else
         {

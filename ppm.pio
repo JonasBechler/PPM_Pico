@@ -4,11 +4,11 @@
 
 .wrap_target
 entry:
-     irq 0
-     irq 1
-     irq 2
-     irq 3
-     jmp entry
+     irq 0     side 1
+     irq 1     side 0
+     irq 2     side 0
+     irq 3     side 0
+     jmp entry side 0
 .wrap
 	
 
