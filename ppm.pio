@@ -2,15 +2,14 @@
 
 ;implement PPM on a pio in assebler
 
-     set pindirs, 0
+.wrap_target
 entry:
-     in pins 1
-     push
      irq 0
      irq 1
      irq 2
      irq 3
      jmp entry
+.wrap
 	
 
 % c-sdk {
@@ -19,10 +18,17 @@ static inline void ppm_program_init(PIO pio, uint sm, uint offset, uint pin) {
      
      
 
-     // Map the state machine's IN pin group to one pin, namely the `pin` parameter to this function.
-     pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, false);
-     sm_config_set_in_pins(&c, pin); // for WAIT, IN
-     sm_config_set_jmp_pin(&c, pin); // for JMP
+     // set pin as Input & Map the state machine's IN/JMP pin group to one pin
+     //pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, false);
+     //sm_config_set_in_pins(&c, pin); // for WAIT, IN
+     //sm_config_set_jmp_pin(&c, pin); // for JMP
+
+     // set pin as Output & Map the state machine's Sideset pin group to one pin
+     pio_sm_set_consecutive_pindirs(pio, sm, outputPin, 1, true);
+     sm_config_set_sideset_pins (&c, pin)
+
+     // Set this pin's GPIO function (connect PIO to the pad)
+     pio_gpio_init(pio, pin);
      
      
      //f_neu = f_alt / div 
@@ -30,14 +36,9 @@ static inline void ppm_program_init(PIO pio, uint sm, uint offset, uint pin) {
      float div = clock_get_hz(clk_sys) / (2048000 * cyclesPerLoop);
      sm_config_set_clkdiv(&c, div);
 
-     // Set this pin's GPIO function (connect PIO to the pad)
-     pio_gpio_init(pio, pin);
-     // Set the pin direction to output at the PIO
-     pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, false);
-
+     
      // Load our configuration, and jump to the start of the program
      pio_sm_init(pio, sm, offset, &c);
-     // Set the state machine running
      pio_sm_set_enabled(pio, sm, true);
 }
 %}
